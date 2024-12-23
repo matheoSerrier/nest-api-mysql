@@ -8,6 +8,7 @@ import {
   ManyToMany,
 } from "typeorm";
 import { Project } from "../../project/entities/project.entity";
+import { Task } from "../../task/entities/task.entity";
 
 @Entity()
 export class User {
@@ -40,4 +41,7 @@ export class User {
 
   @ManyToMany(() => Project, (project) => project.participants)
   participatingProjects: Project[];
+
+  @ManyToMany(() => Task, (task) => task.assignedUsers)
+  tasks: Task[];
 }

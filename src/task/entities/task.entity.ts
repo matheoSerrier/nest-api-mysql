@@ -7,21 +7,23 @@ import {
   JoinTable,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToMany,
 } from "typeorm";
+import { Project } from "../../project/entities/project.entity";
 import { User } from "../../user/entities/user.entity";
-import { Task } from "../../task/entities/task.entity";
 
 @Entity()
-export class Project {
+export class Task {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;
 
-  @Column({ type: "varchar", length: 100, unique: true })
-  name: string;
+  @Column({ type: "varchar", length: 100 })
+  title: string;
 
-  @Column({ type: "varchar", length: 255 })
+  @Column({ type: "text", nullable: true })
   description: string;
+
+  @Column({ type: "boolean", default: false })
+  isCompleted: boolean;
 
   @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
@@ -33,13 +35,15 @@ export class Project {
   })
   updatedAt: Date;
 
-  @ManyToOne(() => User, (user) => user.projects)
-  owner: User;
+  // Relation obligatoire avec un projet
+  @ManyToOne(() => Project, (project) => project.tasks, {
+    onDelete: "CASCADE",
+    nullable: false,
+  })
+  project: Project;
 
-  @ManyToMany(() => User, (user) => user.participatingProjects)
+  // Relation optionnelle avec des utilisateurs
+  @ManyToMany(() => User, (user) => user.tasks)
   @JoinTable()
-  participants: User[];
-
-  @OneToMany(() => Task, (task) => task.project, { cascade: true })
-  tasks: Task[];
+  assignedUsers: User[];
 }

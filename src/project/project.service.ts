@@ -3,6 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Project } from "./entities/project.entity";
 import { User } from "../user/entities/user.entity";
+import { Task } from "../task/entities/task.entity";
 import { CreateProjectDto } from "./dto/create-project.dto";
 import { UpdateProjectDto } from "./dto/update-project.dto";
 
@@ -13,6 +14,8 @@ export class ProjectService {
     private projectRepository: Repository<Project>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Task)
+    private taskRepository: Repository<Task>,
   ) {}
 
   // Récupérer tous les projets
@@ -33,7 +36,7 @@ export class ProjectService {
     }
     return project;
   }
-  // Créer un projet
+
   async create(createProjectDto: CreateProjectDto): Promise<Project> {
     const owner = await this.userRepository.findOneBy({
       id: createProjectDto.ownerId,
@@ -48,7 +51,40 @@ export class ProjectService {
       ...createProjectDto,
       owner,
     });
-    return this.projectRepository.save(project);
+    const savedProject = await this.projectRepository.save(project);
+
+    // Ajouter des tâches par défaut au projet
+    await this.addDefaultTasks(savedProject);
+
+    return savedProject;
+  }
+
+  private async addDefaultTasks(project: Project): Promise<void> {
+    const defaultTasks = [
+      {
+        title: "Planification initiale",
+        description: "Définir les objectifs et les délais.",
+      },
+      {
+        title: "Recherche et analyse",
+        description: "Analyser les besoins et proposer des solutions.",
+      },
+      {
+        title: "Développement initial",
+        description: "Commencer le développement de base.",
+      },
+      {
+        title: "Test et validation",
+        description: "Effectuer les tests pour garantir la qualité.",
+      },
+      { title: "Livraison", description: "Livrer le projet au client." },
+    ];
+
+    const tasks = defaultTasks.map((taskData) =>
+      this.taskRepository.create({ ...taskData, project }),
+    );
+
+    await this.taskRepository.save(tasks);
   }
 
   // Mettre à jour un projet
