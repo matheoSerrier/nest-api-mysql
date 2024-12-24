@@ -6,7 +6,8 @@ import {
     ParseIntPipe,
     Post,
     Delete,
-    Put
+    Put,
+    Query
   } from '@nestjs/common';
   import { AssignUsersDto } from './dto/assign-users.dto';
   import { TaskService } from './task.service';
@@ -17,8 +18,15 @@ import {
   
     // Récupérer toutes les tâches
     @Get()
-    findAll() {
-      return this.taskService.findAll();
+    async findAll(
+        @Query("page") page: number = 1,
+        @Query("limit") limit: number = 10,
+    ) {
+        const parsedPage = parseInt(page.toString(), 10) || 1;
+        const parsedLimit = parseInt(limit.toString(), 10) || 10;
+
+        // Appelle le service avec les paramètres paginés
+        return this.taskService.findAll(parsedPage, parsedLimit);
     }
   
     // Récupérer une tâche par son ID

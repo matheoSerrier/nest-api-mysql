@@ -3,6 +3,7 @@ import { User } from "../user/entities/user.entity";
 import { Task } from "./entities/task.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { PaginationResultDto } from "./dto/pagination-result.dto";
 
 @Injectable()
 export class TaskService {
@@ -13,10 +14,15 @@ export class TaskService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async findAll(): Promise<Task[]> {
-    return this.taskRepository.find({
-      relations: ["project", "assignedUsers"], // Charge les relations nécessaires
+  async findAll(page: number, limit: number): Promise<PaginationResultDto<Task>> {
+    const [tasks, total] = await this.taskRepository.findAndCount({
+      where: { deletedAt: null },
+      relations: ["project", "assignedUsers"],
+      skip: (page - 1) * limit,
+      take: limit,
     });
+  
+    return { data: tasks, total };
   }
 
   async findById(taskId: number): Promise<Task> {
