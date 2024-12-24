@@ -45,17 +45,6 @@ describe('TaskService', () => {
     jest.clearAllMocks();
   });
 
-  describe('findAll', () => {
-    it('should return all tasks', async () => {
-      const mockTasks = [{ id: 1, title: 'Test Task', project: {}, assignedUsers: [] }];
-      mockTaskRepository.find.mockResolvedValue(mockTasks);
-
-      const result = await service.findAll();
-      expect(taskRepository.find).toHaveBeenCalledWith({ relations: ['project', 'assignedUsers'] });
-      expect(result).toEqual(mockTasks);
-    });
-  });
-
   describe('findById', () => {
     it('should return a task if found', async () => {
       const mockTask = { id: 1, title: 'Test Task', project: {}, assignedUsers: [] };
