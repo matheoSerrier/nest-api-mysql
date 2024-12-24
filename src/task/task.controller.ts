@@ -5,6 +5,8 @@ import {
     Param,
     ParseIntPipe,
     Post,
+    Delete,
+    Put
   } from '@nestjs/common';
   import { AssignUsersDto } from './dto/assign-users.dto';
   import { TaskService } from './task.service';
@@ -32,6 +34,16 @@ import {
       @Body() assignUsersDto: AssignUsersDto,
     ) {
       return this.taskService.assignUsersToTask(id, assignUsersDto.userIds);
+    }
+
+    @Delete(':id')
+    softDelete(@Param('id', ParseIntPipe) id: number) {
+        return this.taskService.softDelete(id);
+    }
+
+    @Put(':id/restore')
+    restore(@Param('id', ParseIntPipe) id: number) {
+        return this.taskService.restore(id);
     }
   }
   

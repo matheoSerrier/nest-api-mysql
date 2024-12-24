@@ -47,4 +47,31 @@ export class TaskService {
     task.assignedUsers = [...task.assignedUsers, ...users];
     return this.taskRepository.save(task);
   }
+
+  async softDelete(taskId: number): Promise<void> {
+    const task = await this.taskRepository.findOne({
+      where: { id: taskId, deletedAt: null }, // Vérifie que la tâche n'est pas déjà supprimée
+    });
+
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${taskId} not found`);
+    }
+
+    await this.taskRepository.softDelete(taskId); // Effectue un soft delete
+  }
+
+  async restore(taskId: number): Promise<void> {
+    const task = await this.taskRepository.findOne({
+      where: { id: taskId }, // Inclut les tâches supprimées
+      withDeleted: true, // Charge les tâches supprimées
+    });
+
+    if (!task || !task.deletedAt) {
+      throw new NotFoundException(
+        `Task with ID ${taskId} is not deleted or does not exist`,
+      );
+    }
+
+    await this.taskRepository.restore(taskId); // Restaure la tâche
+  }
 }

@@ -7,6 +7,7 @@ import {
   JoinTable,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
 } from "typeorm";
 import { Project } from "../../project/entities/project.entity";
 import { User } from "../../user/entities/user.entity";
@@ -34,6 +35,9 @@ export class Task {
     onUpdate: "CURRENT_TIMESTAMP",
   })
   updatedAt: Date;
+
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deletedAt: Date; 
 
   // Relation obligatoire avec un projet
   @ManyToOne(() => Project, (project) => project.tasks, {
