@@ -23,6 +23,7 @@ import {
       @Query("limit") limit: number = 10,
       @Query("title") title?: string,
       @Query("isCompleted") isCompleted?: string,
+      @Query("orderBy") orderBy?: "ASC" | "DESC",
     ) {
       const parsedPage = parseInt(page.toString(), 10) || 1;
       const parsedLimit = parseInt(limit.toString(), 10) || 10;
@@ -33,7 +34,7 @@ import {
         isCompleted: isCompleted !== undefined ? isCompleted === "true" : undefined,
       };
 
-      return this.taskService.findAll(parsedPage, parsedLimit, filters);
+      return this.taskService.findAll(parsedPage, parsedLimit, filters, orderBy);
     }
   
     // Récupérer une tâche par son ID

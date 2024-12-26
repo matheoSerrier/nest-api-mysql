@@ -20,14 +20,18 @@ export class TaskService {
     page: number,
     limit: number,
     filters?: { title?: string; isCompleted?: boolean },
+    orderBy?: "ASC" | "DESC",
   ): Promise<PaginationResult<TaskIndexDto>> {
     const { title, isCompleted } = filters || {};
 
     const [tasks, total] = await this.taskRepository.findAndCount({
       where: {
         deletedAt: null,
-        ...(title && { title: Like(`%${title}%`) }), // Filtrage par titre (partiel)
-        ...(typeof isCompleted === "boolean" && { isCompleted }), // Filtrage par état d'achèvement
+        ...(title && { title: Like(`%${title}%`) }),
+        ...(typeof isCompleted === "boolean" && { isCompleted }),
+      },
+      order: {
+        title: orderBy || "ASC", // Tri par ordre ascendant par défaut
       },
       relations: ["project", "assignedUsers"],
       skip: (page - 1) * limit,
