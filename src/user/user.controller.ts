@@ -6,6 +6,7 @@ import {
   Put,
   Param,
   ParseIntPipe,
+  Query,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -16,8 +17,14 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  findAll(
+    @Query("page") page: number = 1,
+    @Query("limit") limit: number = 10,
+  ) {
+    const parsedPage = parseInt(page.toString(), 10) || 1;
+    const parsedLimit = parseInt(limit.toString(), 10) || 10;
+
+    return this.userService.findAll(parsedPage, parsedLimit);
   }
 
   @Post()
