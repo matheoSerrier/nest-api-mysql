@@ -7,6 +7,7 @@ import {
   Param,
   Body,
   ParseIntPipe,
+  Query,
 } from "@nestjs/common";
 import { ProjectService } from "./project.service";
 import { CreateProjectDto } from "./dto/create-project.dto";
@@ -18,8 +19,14 @@ export class ProjectController {
   constructor(private readonly projectService: ProjectService) {}
 
   @Get()
-  findAll() {
-    return this.projectService.findAll();
+  findAll(
+    @Query("page") page: number = 1,
+    @Query("limit") limit: number = 10,
+  ) {
+    const parsedPage = parseInt(page.toString(), 10) || 1;
+    const parsedLimit = parseInt(limit.toString(), 10) || 10;
+
+    return this.projectService.findAll(parsedPage, parsedLimit);
   }
 
   @Get(":id")
