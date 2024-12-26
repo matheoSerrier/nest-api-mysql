@@ -6,7 +6,8 @@ import { User } from "../user/entities/user.entity";
 import { Task } from "../task/entities/task.entity";
 import { CreateProjectDto } from "./dto/create-project.dto";
 import { UpdateProjectDto } from "./dto/update-project.dto";
-import { PaginationResultDto } from "./dto/pagniation-result.dto";
+
+import { applyPagination, PaginationResult } from "../utils/pagination.util";
 
 @Injectable()
 export class ProjectService {
@@ -20,17 +21,14 @@ export class ProjectService {
   ) {}
 
   // Récupérer tous les projets
-  async findAll(
-    page: number,
-    limit: number,
-  ): Promise<PaginationResultDto<Project>> {
+  async findAll(page: number, limit: number): Promise<PaginationResult<Project>> {
     const [projects, total] = await this.projectRepository.findAndCount({
       relations: ["owner", "participants"],
-      skip: (page - 1) * limit, // Ignorer les éléments des pages précédentes
-      take: limit, // Nombre maximum d'éléments à récupérer
+      skip: (page - 1) * limit,
+      take: limit,
     });
-
-    return { data: projects, total };
+  
+    return applyPagination(projects, total);
   }
 
   // Récupérer un projet par son ID avec ses participants
