@@ -19,14 +19,21 @@ import {
     // Récupérer toutes les tâches
     @Get()
     async findAll(
-        @Query("page") page: number = 1,
-        @Query("limit") limit: number = 10,
+      @Query("page") page: number = 1,
+      @Query("limit") limit: number = 10,
+      @Query("title") title?: string,
+      @Query("isCompleted") isCompleted?: string,
     ) {
-        const parsedPage = parseInt(page.toString(), 10) || 1;
-        const parsedLimit = parseInt(limit.toString(), 10) || 10;
+      const parsedPage = parseInt(page.toString(), 10) || 1;
+      const parsedLimit = parseInt(limit.toString(), 10) || 10;
 
-        // Appelle le service avec les paramètres paginés
-        return this.taskService.findAll(parsedPage, parsedLimit);
+      // Convertit `isCompleted` en boolean s'il est fourni
+      const filters = {
+        title,
+        isCompleted: isCompleted !== undefined ? isCompleted === "true" : undefined,
+      };
+
+      return this.taskService.findAll(parsedPage, parsedLimit, filters);
     }
   
     // Récupérer une tâche par son ID

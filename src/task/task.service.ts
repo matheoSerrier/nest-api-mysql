@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { User } from "../user/entities/user.entity";
 import { Task } from "./entities/task.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Repository, Like } from "typeorm";
 import { TaskIndexDto } from "./dto/task-index.dto";
 
 import { applyPagination, PaginationResult } from "../utils/pagination.util";
@@ -19,10 +19,17 @@ export class TaskService {
   async findAll(
     page: number,
     limit: number,
+    filters?: { title?: string; isCompleted?: boolean },
   ): Promise<PaginationResult<TaskIndexDto>> {
+    const { title, isCompleted } = filters || {};
+
     const [tasks, total] = await this.taskRepository.findAndCount({
-      where: { deletedAt: null },
-      relations: ['project', 'assignedUsers'],
+      where: {
+        deletedAt: null,
+        ...(title && { title: Like(`%${title}%`) }), // Filtrage par titre (partiel)
+        ...(typeof isCompleted === "boolean" && { isCompleted }), // Filtrage par état d'achèvement
+      },
+      relations: ["project", "assignedUsers"],
       skip: (page - 1) * limit,
       take: limit,
     });
@@ -42,7 +49,6 @@ export class TaskService {
       })),
     }));
 
-    // Utiliser l'utilitaire pour formater la pagination
     return applyPagination(formattedTasks, total);
   }
 
