@@ -12,13 +12,12 @@ export class AuthMiddleware implements NestMiddleware {
       { path: "/auth/register", method: "POST" },
     ];
 
-    // Vérifie si la route actuelle est exclue
     const isExcluded = excludedRoutes.some(
       (route) => req.originalUrl.startsWith(route.path) && req.method === route.method,
     );
 
     if (isExcluded) {
-      return next(); // Autorise l'accès sans vérification
+      return next();
     }
 
     const authHeader = req.headers["authorization"];
@@ -31,7 +30,7 @@ export class AuthMiddleware implements NestMiddleware {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET || "default_secret",
       });
-      req.user = payload; // Injecte les informations utilisateur dans la requête
+      req.user = payload;
       next();
     } catch (err) {
       throw new UnauthorizedException("Invalid or expired token");
