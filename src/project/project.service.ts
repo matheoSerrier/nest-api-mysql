@@ -6,9 +6,10 @@ import { User } from "../user/entities/user.entity";
 import { Task } from "../task/entities/task.entity";
 import { CreateProjectDto } from "./dto/create-project.dto";
 import { UpdateProjectDto } from "./dto/update-project.dto";
+import { ProjectSummaryDto } from "./dto/project-summary.dto";
 
 import { applyPagination, PaginationResult } from "../utils/pagination.util";
-import { ProjectSummaryDto } from "./dto/project-summary.dto";
+import dayjs from 'dayjs';
 
 @Injectable()
 export class ProjectService {
@@ -37,6 +38,8 @@ export class ProjectService {
       id: project.id,
       name: project.name,
       description: project.description,
+      startDate: project.startDate ? dayjs(project.startDate).format("YYYY-MM-DD") : null,
+      endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
       owner: {
         id: project.owner.id,
         name: project.owner.name,
@@ -68,6 +71,8 @@ export class ProjectService {
       id: project.id,
       name: project.name,
       description: project.description,
+      startDate: project.startDate ? dayjs(project.startDate).format("YYYY-MM-DD") : null,
+      endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
       owner: {
         id: project.owner.id,
         name: project.owner.name,
@@ -92,10 +97,15 @@ export class ProjectService {
       );
     }
   
+    // Initialiser les dates avec des valeurs par défaut si elles ne sont pas fournies
+    const { startDate, endDate, ...rest } = createProjectDto;
     const project = this.projectRepository.create({
-      ...createProjectDto,
+      ...rest,
+      startDate: startDate ? new Date(startDate) : new Date(), // Date du jour par défaut
+      endDate: endDate ? new Date(endDate) : null, // NULL par défaut
       owner,
     });
+  
     const savedProject = await this.projectRepository.save(project);
   
     // Ajouter des tâches par défaut au projet
@@ -106,6 +116,8 @@ export class ProjectService {
       id: savedProject.id,
       name: savedProject.name,
       description: savedProject.description,
+      startDate: project.startDate ? dayjs(project.startDate).format("YYYY-MM-DD") : null,
+      endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
       owner: {
         id: owner.id,
         name: owner.name,
@@ -113,7 +125,7 @@ export class ProjectService {
       },
       participants: [],
     };
-  }
+  }  
 
   private async addDefaultTasks(project: Project): Promise<void> {
     const defaultTasks = [
@@ -204,6 +216,8 @@ export class ProjectService {
       id: savedProject.id,
       name: savedProject.name,
       description: savedProject.description,
+      startDate: project.startDate ? dayjs(project.startDate).format("YYYY-MM-DD") : null,
+      endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
       owner: {
         id: savedProject.owner.id,
         name: savedProject.owner.name,
@@ -247,6 +261,8 @@ export class ProjectService {
       id: project.id,
       name: project.name,
       description: project.description,
+      startDate: project.startDate ? dayjs(project.startDate).format("YYYY-MM-DD") : null,
+      endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
       owner: {
         id: project.owner.id,
         name: project.owner.name,

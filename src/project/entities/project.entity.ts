@@ -23,6 +23,12 @@ export class Project {
   @Column({ type: "varchar", length: 255 })
   description: string;
 
+  @Column({ type: "date", default: () => "CURRENT_DATE" }) // Date du jour par défaut
+  startDate: Date;
+
+  @Column({ type: "date", nullable: true, default: null }) // NULL par défaut
+  endDate: Date | null;
+
   @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createdAt: Date;
 

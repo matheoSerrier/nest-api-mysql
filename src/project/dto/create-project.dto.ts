@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, Length } from "class-validator";
+import { IsString, IsNotEmpty, Length, IsDateString, IsOptional } from "class-validator";
 
 export class CreateProjectDto {
   @IsString()
@@ -10,6 +10,14 @@ export class CreateProjectDto {
   @IsNotEmpty()
   @Length(3, 255)
   description: string;
+
+  @IsDateString()
+  @IsOptional()
+  startDate?: string;
+
+  @IsDateString()
+  @IsOptional()
+  endDate?: string | null;
 
   @IsNotEmpty()
   ownerId: number;
