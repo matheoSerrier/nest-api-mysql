@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { User } from "../user/entities/user.entity";
 import { Task } from "./entities/task.entity";
+import { Tag } from "../tag/entities/tag.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, Like } from "typeorm";
 import { TaskIndexDto } from "./dto/task-index.dto";
@@ -14,6 +15,8 @@ export class TaskService {
     private readonly taskRepository: Repository<Task>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Tag)
+    private readonly tagRepository: Repository<Tag>,
   ) {}
 
   async findAll(
@@ -110,5 +113,30 @@ export class TaskService {
     }
 
     await this.taskRepository.restore(taskId); // Restaure la tâche
+  }
+
+  async assignTagsToTask(taskId: number, tagNames: string[]): Promise<Task> {
+    const task = await this.taskRepository.findOne({
+      where: { id: taskId },
+      relations: ["tags"],
+    });
+
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${taskId} not found`);
+    }
+
+    const tags = await Promise.all(
+      tagNames.map(async (name) => {
+        let tag = await this.tagRepository.findOne({ where: { name } });
+        if (!tag) {
+          tag = this.tagRepository.create({ name });
+          tag = await this.tagRepository.save(tag);
+        }
+        return tag;
+      }),
+    );
+
+    task.tags = [...task.tags, ...tags];
+    return this.taskRepository.save(task);
   }
 }

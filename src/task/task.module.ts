@@ -4,9 +4,10 @@ import { Task } from "./entities/task.entity";
 import { User } from "../user/entities/user.entity";
 import { TaskService } from "./task.service";
 import { TaskController } from "./task.controller";
+import { Tag } from "src/tag/entities/tag.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Task, User])],
+  imports: [TypeOrmModule.forFeature([Task, User, Tag])],
   controllers: [TaskController],
   providers: [TaskService],
 })

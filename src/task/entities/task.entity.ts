@@ -11,6 +11,7 @@ import {
 } from "typeorm";
 import { Project } from "../../project/entities/project.entity";
 import { User } from "../../user/entities/user.entity";
+import { Tag } from "../../tag/entities/tag.entity";
 
 @Entity()
 export class Task {
@@ -50,4 +51,8 @@ export class Task {
   @ManyToMany(() => User, (user) => user.tasks)
   @JoinTable()
   assignedUsers: User[];
+
+  @ManyToMany(() => Tag, (tag) => tag.tasks, { cascade: true })
+  @JoinTable()
+  tags: Tag[];
 }

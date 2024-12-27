@@ -61,5 +61,13 @@ import {
     restore(@Param('id', ParseIntPipe) id: number) {
         return this.taskService.restore(id);
     }
+
+    @Post(":id/assign-tags")
+    assignTagsToTask(
+      @Param("id", ParseIntPipe) id: number,
+      @Body("tags") tagNames: string[],
+    ) {
+      return this.taskService.assignTagsToTask(id, tagNames);
+    }
   }
   
