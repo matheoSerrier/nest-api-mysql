@@ -17,10 +17,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  findAll(
-    @Query("page") page: number = 1,
-    @Query("limit") limit: number = 10,
-  ) {
+  findAll(@Query("page") page: number = 1, @Query("limit") limit: number = 10) {
     const parsedPage = parseInt(page.toString(), 10) || 1;
     const parsedLimit = parseInt(limit.toString(), 10) || 10;
 

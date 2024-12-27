@@ -1,9 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { TaskController } from './task.controller';
-import { TaskService } from './task.service';
-import { AssignUsersDto } from './dto/assign-users.dto';
+import { Test, TestingModule } from "@nestjs/testing";
+import { TaskController } from "./task.controller";
+import { TaskService } from "./task.service";
+import { AssignUsersDto } from "./dto/assign-users.dto";
 
-describe('TaskController', () => {
+describe("TaskController", () => {
   let controller: TaskController;
   let service: TaskService;
 
@@ -32,9 +32,9 @@ describe('TaskController', () => {
     jest.clearAllMocks();
   });
 
-  describe('findAll', () => {
-    it('should call TaskService.findAll and return all tasks', async () => {
-      const mockTasks = [{ id: 1, title: 'Test Task' }];
+  describe("findAll", () => {
+    it("should call TaskService.findAll and return all tasks", async () => {
+      const mockTasks = [{ id: 1, title: "Test Task" }];
       mockTaskService.findAll.mockResolvedValue(mockTasks);
 
       const result = await controller.findAll();
@@ -43,9 +43,9 @@ describe('TaskController', () => {
     });
   });
 
-  describe('findById', () => {
-    it('should call TaskService.findById and return the task', async () => {
-      const mockTask = { id: 1, title: 'Test Task' };
+  describe("findById", () => {
+    it("should call TaskService.findById and return the task", async () => {
+      const mockTask = { id: 1, title: "Test Task" };
       mockTaskService.findById.mockResolvedValue(mockTask);
 
       const result = await controller.findById(1);
@@ -53,32 +53,46 @@ describe('TaskController', () => {
       expect(result).toEqual(mockTask);
     });
 
-    it('should throw an error if TaskService.findById throws an exception', async () => {
-      mockTaskService.findById.mockRejectedValue(new Error('Task not found'));
+    it("should throw an error if TaskService.findById throws an exception", async () => {
+      mockTaskService.findById.mockRejectedValue(new Error("Task not found"));
 
-      await expect(controller.findById(1)).rejects.toThrow('Task not found');
+      await expect(controller.findById(1)).rejects.toThrow("Task not found");
       expect(service.findById).toHaveBeenCalledWith(1);
     });
   });
 
-  describe('assignUsersToTask', () => {
-    it('should call TaskService.assignUsersToTask and return the updated task', async () => {
-      const mockTask = { id: 1, title: 'Test Task', assignedUsers: [{ id: 1 }] };
+  describe("assignUsersToTask", () => {
+    it("should call TaskService.assignUsersToTask and return the updated task", async () => {
+      const mockTask = {
+        id: 1,
+        title: "Test Task",
+        assignedUsers: [{ id: 1 }],
+      };
       const assignUsersDto: AssignUsersDto = { userIds: [1] };
 
       mockTaskService.assignUsersToTask.mockResolvedValue(mockTask);
 
       const result = await controller.assignUsersToTask(1, assignUsersDto);
-      expect(service.assignUsersToTask).toHaveBeenCalledWith(1, assignUsersDto.userIds);
+      expect(service.assignUsersToTask).toHaveBeenCalledWith(
+        1,
+        assignUsersDto.userIds,
+      );
       expect(result).toEqual(mockTask);
     });
 
-    it('should throw an error if TaskService.assignUsersToTask throws an exception', async () => {
+    it("should throw an error if TaskService.assignUsersToTask throws an exception", async () => {
       const assignUsersDto: AssignUsersDto = { userIds: [1] };
-      mockTaskService.assignUsersToTask.mockRejectedValue(new Error('Task not found'));
+      mockTaskService.assignUsersToTask.mockRejectedValue(
+        new Error("Task not found"),
+      );
 
-      await expect(controller.assignUsersToTask(1, assignUsersDto)).rejects.toThrow('Task not found');
-      expect(service.assignUsersToTask).toHaveBeenCalledWith(1, assignUsersDto.userIds);
+      await expect(
+        controller.assignUsersToTask(1, assignUsersDto),
+      ).rejects.toThrow("Task not found");
+      expect(service.assignUsersToTask).toHaveBeenCalledWith(
+        1,
+        assignUsersDto.userIds,
+      );
     });
   });
 });

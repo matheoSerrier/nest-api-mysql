@@ -21,13 +21,16 @@ export class ProjectService {
   ) {}
 
   // Récupérer tous les projets
-  async findAll(page: number, limit: number): Promise<PaginationResult<Project>> {
+  async findAll(
+    page: number,
+    limit: number,
+  ): Promise<PaginationResult<Project>> {
     const [projects, total] = await this.projectRepository.findAndCount({
       relations: ["owner", "participants"],
       skip: (page - 1) * limit,
       take: limit,
     });
-  
+
     return applyPagination(projects, total);
   }
 

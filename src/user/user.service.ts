@@ -4,7 +4,7 @@ import { Repository } from "typeorm";
 import { User } from "./entities/user.entity";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
-
+import * as bcrypt from "bcrypt";
 import { applyPagination, PaginationResult } from "../utils/pagination.util";
 
 @Injectable()
@@ -19,12 +19,30 @@ export class UserService {
       skip: (page - 1) * limit,
       take: limit,
     });
-  
+
     return applyPagination(users, total);
   }
 
-  create(createUserDto: CreateUserDto): Promise<User> {
-    const user = this.userRepository.create(createUserDto);
+  async findByEmail(email: string): Promise<User | undefined> {
+    return this.userRepository.findOne({ where: { email } });
+  }
+
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    // Vérifie si un utilisateur avec cet email existe déjà
+    const existingUser = await this.findByEmail(createUserDto.email);
+    if (existingUser) {
+      throw new Error("User with this email already exists");
+    }
+
+    // Hache le mot de passe
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
+    // Crée l'utilisateur
+    const user = this.userRepository.create({
+      ...createUserDto,
+      password: hashedPassword,
+    });
+
     return this.userRepository.save(user);
   }
 

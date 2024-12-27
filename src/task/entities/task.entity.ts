@@ -37,8 +37,8 @@ export class Task {
   })
   updatedAt: Date;
 
-  @DeleteDateColumn({ type: 'timestamp', nullable: true })
-  deletedAt: Date; 
+  @DeleteDateColumn({ type: "timestamp", nullable: true })
+  deletedAt: Date;
 
   // Relation obligatoire avec un projet
   @ManyToOne(() => Project, (project) => project.tasks, {

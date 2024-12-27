@@ -6,7 +6,6 @@ import { CreateTagDto } from "./dto/create-tag.dto";
 
 import { applyPagination, PaginationResult } from "../utils/pagination.util";
 
-
 @Injectable()
 export class TagService {
   constructor(
@@ -14,10 +13,7 @@ export class TagService {
     private readonly tagRepository: Repository<Tag>,
   ) {}
 
-  async findAll(
-    page: number,
-    limit: number,
-  ): Promise<PaginationResult<Tag>> {
+  async findAll(page: number, limit: number): Promise<PaginationResult<Tag>> {
     const [tags, total] = await this.tagRepository.findAndCount({
       skip: (page - 1) * limit,
       take: limit,
