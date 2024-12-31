@@ -85,7 +85,7 @@ export class ProjectService {
       })),
     };
   }
-  
+
 
   async create(createProjectDto: CreateProjectDto): Promise<ProjectSummaryDto> {
     const owner = await this.userRepository.findOneBy({
@@ -274,5 +274,38 @@ export class ProjectService {
         email: participant.email,
       })),
     };
+  }
+  // Récupérer tous les projets dont l'utilisateur est propriétaire
+  async findProjectsByOwner(
+    ownerId: number,
+    page: number,
+    limit: number,
+  ): Promise<PaginationResult<ProjectSummaryDto>> {
+    const [projects, total] = await this.projectRepository.findAndCount({
+      where: { owner: { id: ownerId } },
+      relations: ["owner", "participants"],
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    const formattedProjects = projects.map((project) => ({
+      id: project.id,
+      name: project.name,
+      description: project.description,
+      startDate: project.startDate ? dayjs(project.startDate).format("YYYY-MM-DD") : null,
+      endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
+      owner: {
+        id: project.owner.id,
+        name: project.owner.name,
+        email: project.owner.email,
+      },
+      participants: project.participants.map((participant) => ({
+        id: participant.id,
+        name: participant.name,
+        email: participant.email,
+      })),
+    }));
+
+    return applyPagination(formattedProjects, total);
   }  
 }

@@ -1,12 +1,12 @@
 import { Module, MiddlewareConsumer } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { JwtModule } from "@nestjs/jwt"; // Import du module JWT
+import { JwtModule } from "@nestjs/jwt";
 import { UserModule } from "./user/user.module";
 import { ProjectModule } from "./project/project.module";
 import { TaskModule } from "./task/task.module";
 import { TagModule } from "./tag/tag.module";
 import { AuthModule } from "./auth/auth.module";
-import { AuthMiddleware } from "./auth/auth.middleware"; // Import du middleware
+import { AuthMiddleware } from "./auth/auth.middleware"; 
 
 @Module({
   imports: [
@@ -22,7 +22,7 @@ import { AuthMiddleware } from "./auth/auth.middleware"; // Import du middleware
     }),
     JwtModule.register({
       secret: process.env.JWT_SECRET || "default_secret",
-      signOptions: { expiresIn: "1h" },
+      signOptions: { expiresIn: "8h" },
     }),
     UserModule,
     ProjectModule,

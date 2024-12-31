@@ -27,13 +27,17 @@ export class AuthMiddleware implements NestMiddleware {
 
     const token = authHeader.split(" ")[1];
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET || "default_secret",
-      });
-      req.user = payload;
-      next();
-    } catch (error) {
-      throw new UnauthorizedException("Invmalid or expired token");
-    }
+        const payload = await this.jwtService.verifyAsync(token, {
+          secret: process.env.JWT_SECRET || "default_secret",
+        });
+        req.user = {
+          id: payload.sub,
+          email: payload.email,
+        };      
+
+        next();
+      } catch (error) {
+        throw new UnauthorizedException("Invalid or expired token");
+      }
   }
 }
