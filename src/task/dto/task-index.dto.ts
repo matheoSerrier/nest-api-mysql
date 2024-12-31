@@ -9,6 +9,8 @@ export class TaskIndexDto {
   };
   assignedUsers: {
     id: number;
-    name: string;
+    firstname: string;
+    lastname: string;
+    slug: string;
   }[];
 }

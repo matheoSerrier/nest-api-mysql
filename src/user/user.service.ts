@@ -6,6 +6,7 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import * as bcrypt from "bcrypt";
 import { applyPagination, PaginationResult } from "../utils/pagination.util";
+import { UserSummaryDto } from "./dto/user-summary.dto";
 
 @Injectable()
 export class UserService {
@@ -14,17 +15,37 @@ export class UserService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async findAll(page: number, limit: number): Promise<PaginationResult<User>> {
+  async findAll(page: number, limit: number): Promise<PaginationResult<UserSummaryDto>> {
     const [users, total] = await this.userRepository.findAndCount({
       skip: (page - 1) * limit,
       take: limit,
     });
 
-    return applyPagination(users, total);
+    const formattedUsers = users.map((user) => ({
+      id: user.id,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      slug: user.slug,
+      email: user.email,
+    }));
+
+    return applyPagination(formattedUsers, total);
   }
 
   async findByEmail(email: string): Promise<User | undefined> {
     return this.userRepository.findOne({ where: { email } });
+  }
+
+  private async generateUniqueSlug(firstname: string, lastname: string): Promise<string> {
+    let slug = `@${firstname.toLowerCase()}${lastname.toLowerCase()}`;
+    let suffix = 1;
+
+    while (await this.userRepository.findOne({ where: { slug } })) {
+      slug = `@${firstname.toLowerCase()}${lastname.toLowerCase()}${suffix}`;
+      suffix++;
+    }
+
+    return slug;
   }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -32,24 +53,35 @@ export class UserService {
     if (existingUser) {
       throw new Error("User with this email already exists");
     }
-
+  
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-
+  
+    const slug = await this.generateUniqueSlug(createUserDto.firstname, createUserDto.lastname);
+  
     const user = this.userRepository.create({
       ...createUserDto,
       password: hashedPassword,
+      slug,
     });
-
-    return this.userRepository.save(user);
+  
+    return this.userRepository.save(user); // Retourne l'entité complète
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<UserSummaryDto> {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 
     Object.assign(user, updateUserDto);
-    return this.userRepository.save(user);
+    const updatedUser = await this.userRepository.save(user);
+
+    return {
+      id: updatedUser.id,
+      firstname: updatedUser.firstname,
+      lastname: updatedUser.lastname,
+      slug: updatedUser.slug,
+      email: updatedUser.email,
+    };
   }
 }

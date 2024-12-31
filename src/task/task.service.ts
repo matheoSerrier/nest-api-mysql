@@ -52,7 +52,9 @@ export class TaskService {
       },
       assignedUsers: task.assignedUsers.map((user) => ({
         id: user.id,
-        name: user.name,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        slug: user.slug
       })),
     }));
 

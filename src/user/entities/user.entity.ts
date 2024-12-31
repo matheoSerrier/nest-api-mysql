@@ -15,8 +15,14 @@ export class User {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;
 
-  @Column({ type: "varchar", length: 100, unique: true })
-  name: string;
+  @Column({ type: "varchar", length: 50 })
+  firstname: string;
+
+  @Column({ type: "varchar", length: 50 })
+  lastname: string;
+
+  @Column({ type: "varchar", length: 255, unique: true })
+  slug: string;
 
   @Column({
     type: "varchar",

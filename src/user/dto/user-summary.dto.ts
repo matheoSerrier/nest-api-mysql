@@ -1,5 +1,7 @@
 export class UserSummaryDto {
-    id: number;
-    name: string;
-    email: string;
-  }  
+  id: number;
+  firstname: string;
+  lastname: string;
+  slug: string;
+  email: string;
+}  

@@ -46,12 +46,16 @@ export class ProjectService {
       endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
       owner: {
         id: project.owner.id,
-        name: project.owner.name,
+        firstname: project.owner.firstname,
+        lastname: project.owner.lastname,
+        slug: project.owner.slug,
         email: project.owner.email,
       },
       participants: project.participants.map((participant) => ({
         id: participant.id,
-        name: participant.name,
+        firstname: participant.firstname,
+        lastname: participant.lastname,
+        slug: participant.slug,
         email: participant.email,
       })),
       category: project.category
@@ -85,12 +89,16 @@ export class ProjectService {
       endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
       owner: {
         id: project.owner.id,
-        name: project.owner.name,
+        firstname: project.owner.firstname,
+        lastname: project.owner.lastname,
+        slug: project.owner.slug,
         email: project.owner.email,
       },
       participants: project.participants.map((participant) => ({
         id: participant.id,
-        name: participant.name,
+        firstname: participant.firstname,
+        lastname: participant.lastname,
+        slug: participant.slug,
         email: participant.email,
       })),
       category: project.category
@@ -144,7 +152,9 @@ export class ProjectService {
       endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
       owner: {
         id: owner.id,
-        name: owner.name,
+        firstname: project.owner.firstname,
+        lastname: project.owner.lastname,
+        slug: project.owner.slug,
         email: owner.email,
       },
       participants: [],
@@ -249,12 +259,16 @@ export class ProjectService {
       endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
       owner: {
         id: savedProject.owner.id,
-        name: savedProject.owner.name,
+        firstname: project.owner.firstname,
+        lastname: project.owner.lastname,
+        slug: project.owner.slug,
         email: savedProject.owner.email,
       },
       participants: savedProject.participants.map((participant) => ({
         id: participant.id,
-        name: participant.name,
+        firstname: participant.firstname,
+        lastname: participant.lastname,
+        slug: participant.slug,
         email: participant.email,
       })),
     };
@@ -294,12 +308,16 @@ export class ProjectService {
       endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
       owner: {
         id: project.owner.id,
-        name: project.owner.name,
+        firstname: project.owner.firstname,
+        lastname: project.owner.lastname,
+        slug: project.owner.slug,
         email: project.owner.email,
       },
       participants: project.participants.map((participant) => ({
         id: participant.id,
-        name: participant.name,
+        firstname: participant.firstname,
+        lastname: participant.lastname,
+        slug: participant.slug,
         email: participant.email,
       })),
     };
@@ -325,12 +343,16 @@ export class ProjectService {
       endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
       owner: {
         id: project.owner.id,
-        name: project.owner.name,
+        firstname: project.owner.firstname,
+        lastname: project.owner.lastname,
+        slug: project.owner.slug,
         email: project.owner.email,
       },
       participants: project.participants.map((participant) => ({
         id: participant.id,
-        name: participant.name,
+        firstname: participant.firstname,
+        lastname: participant.lastname,
+        slug: participant.slug,
         email: participant.email,
       })),
       category: project.category
@@ -371,12 +393,16 @@ export class ProjectService {
         : null,
       owner: {
         id: project.owner.id,
-        name: project.owner.name,
+        firstname: project.owner.firstname,
+        lastname: project.owner.lastname,
+        slug: project.owner.slug,
         email: project.owner.email,
       },
       participants: project.participants.map((participant) => ({
         id: participant.id,
-        name: participant.name,
+        firstname: participant.firstname,
+        lastname: participant.lastname,
+        slug: participant.slug,
         email: participant.email,
       })),
       category: project.category
@@ -410,12 +436,16 @@ export class ProjectService {
       endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
       owner: {
         id: project.owner.id,
-        name: project.owner.name,
+        firstname: project.owner.firstname,
+        lastname: project.owner.lastname,
+        slug: project.owner.slug,
         email: project.owner.email,
       },
       participants: project.participants.map((participant) => ({
         id: participant.id,
-        name: participant.name,
+        firstname: participant.firstname,
+        lastname: participant.lastname,
+        slug: participant.slug,
         email: participant.email,
       })),
       category: {
