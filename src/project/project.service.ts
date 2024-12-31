@@ -4,12 +4,14 @@ import { Repository } from "typeorm";
 import { Project } from "./entities/project.entity";
 import { User } from "../user/entities/user.entity";
 import { Task } from "../task/entities/task.entity";
+import { Category } from "src/category/entities/category.entity"
 import { CreateProjectDto } from "./dto/create-project.dto";
 import { UpdateProjectDto } from "./dto/update-project.dto";
 import { ProjectSummaryDto } from "./dto/project-summary.dto";
 
 import { applyPagination, PaginationResult } from "../utils/pagination.util";
 import dayjs from 'dayjs';
+;
 
 @Injectable()
 export class ProjectService {
@@ -20,6 +22,8 @@ export class ProjectService {
     private userRepository: Repository<User>,
     @InjectRepository(Task)
     private taskRepository: Repository<Task>,
+    @InjectRepository(Category)
+    private categoryRepository: Repository<Category>
   ) {}
 
   // Récupérer tous les projets
@@ -28,7 +32,7 @@ export class ProjectService {
     limit: number,
   ): Promise<PaginationResult<ProjectSummaryDto>> {
     const [projects, total] = await this.projectRepository.findAndCount({
-      relations: ["owner", "participants"],
+      relations: ["owner", "participants", "category"],
       skip: (page - 1) * limit,
       take: limit,
     });
@@ -50,6 +54,12 @@ export class ProjectService {
         name: participant.name,
         email: participant.email,
       })),
+      category: project.category
+      ? {
+          id: project.category.id,
+          name: project.category.name,
+        }
+      : null,
     }));
   
     return applyPagination(formattedProjects, total);
@@ -59,7 +69,7 @@ export class ProjectService {
   async getProjectById(id: number): Promise<ProjectSummaryDto> {
     const project = await this.projectRepository.findOne({
       where: { id },
-      relations: ["owner", "participants"],
+      relations: ["owner", "participants", "category"],
     });
   
     if (!project) {
@@ -83,6 +93,12 @@ export class ProjectService {
         name: participant.name,
         email: participant.email,
       })),
+      category: project.category
+      ? {
+          id: project.category.id,
+          name: project.category.name,
+        }
+      : null,
     };
   }
 
@@ -96,14 +112,22 @@ export class ProjectService {
         `Owner with ID ${createProjectDto.ownerId} not found`,
       );
     }
+
+    let category: Category | null = null;
+    if (createProjectDto.categoryId) {
+      category = await this.categoryRepository.findOneBy({ id: createProjectDto.categoryId });
+      if (!category) {
+        throw new NotFoundException(`Category with ID ${createProjectDto.categoryId} not found`);
+      }
+    }
   
-    // Initialiser les dates avec des valeurs par défaut si elles ne sont pas fournies
     const { startDate, endDate, ...rest } = createProjectDto;
     const project = this.projectRepository.create({
       ...rest,
-      startDate: startDate ? new Date(startDate) : new Date(), // Date du jour par défaut
-      endDate: endDate ? new Date(endDate) : null, // NULL par défaut
+      startDate: startDate ? new Date(startDate) : new Date(),
+      endDate: endDate ? new Date(endDate) : null,
       owner,
+      category,
     });
   
     const savedProject = await this.projectRepository.save(project);
@@ -124,6 +148,10 @@ export class ProjectService {
         email: owner.email,
       },
       participants: [],
+      category: category ? {
+        id: category.id,
+        name: category.name,
+      } : undefined
     };
   }  
 
@@ -156,6 +184,7 @@ export class ProjectService {
   }
 
   // Mettre à jour un projet
+  //TODO à vérifier
   async update(
     id: number,
     updateProjectDto: UpdateProjectDto,
@@ -275,7 +304,7 @@ export class ProjectService {
       })),
     };
   }
-  
+
   async findProjectsByOwner(
     ownerId: number,
     page: number,
@@ -283,7 +312,7 @@ export class ProjectService {
   ): Promise<PaginationResult<ProjectSummaryDto>> {
     const [projects, total] = await this.projectRepository.findAndCount({
       where: { owner: { id: ownerId } },
-      relations: ["owner", "participants"],
+      relations: ["owner", "participants", "category"],
       skip: (page - 1) * limit,
       take: limit,
     });
@@ -304,6 +333,12 @@ export class ProjectService {
         name: participant.name,
         email: participant.email,
       })),
+      category: project.category
+      ? {
+          id: project.category.id,
+          name: project.category.name,
+        }
+      : null,
     }));
 
     return applyPagination(formattedProjects, total);
@@ -319,7 +354,7 @@ export class ProjectService {
         { owner: { id: userId } },
         { participants: { id: userId } }, 
       ],
-      relations: ["owner", "participants"],
+      relations: ["owner", "participants", "category"],
       skip: (page - 1) * limit,
       take: limit,
     });
@@ -344,9 +379,51 @@ export class ProjectService {
         name: participant.name,
         email: participant.email,
       })),
+      category: project.category
+      ? {
+          id: project.category.id,
+          name: project.category.name,
+        }
+      : null,
     }));
   
     return applyPagination(formattedProjects, total);
   }
   
+  async findProjectsByCategory(
+    categoryId: number,
+    page: number,
+    limit: number,
+  ): Promise<PaginationResult<ProjectSummaryDto>> {
+    const [projects, total] = await this.projectRepository.findAndCount({
+      where: { category: { id: categoryId } },
+      relations: ["owner", "participants", "category"],
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+  
+    const formattedProjects = projects.map((project) => ({
+      id: project.id,
+      name: project.name,
+      description: project.description,
+      startDate: project.startDate ? dayjs(project.startDate).format("YYYY-MM-DD") : null,
+      endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
+      owner: {
+        id: project.owner.id,
+        name: project.owner.name,
+        email: project.owner.email,
+      },
+      participants: project.participants.map((participant) => ({
+        id: participant.id,
+        name: participant.name,
+        email: participant.email,
+      })),
+      category: {
+        id: project.category.id,
+        name: project.category.name,
+      },
+    }));
+  
+    return applyPagination(formattedProjects, total);
+  }  
 }

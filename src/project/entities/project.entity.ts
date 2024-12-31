@@ -11,6 +11,7 @@ import {
 } from "typeorm";
 import { User } from "../../user/entities/user.entity";
 import { Task } from "../../task/entities/task.entity";
+import { Category } from "src/category/entities/category.entity";
 
 @Entity()
 export class Project {
@@ -48,4 +49,7 @@ export class Project {
 
   @OneToMany(() => Task, (task) => task.project, { cascade: true })
   tasks: Task[];
+
+  @ManyToOne(() => Category, (category) => category.projects, { nullable: true })
+  category: Category | null;
 }

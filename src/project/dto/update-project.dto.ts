@@ -1,4 +1,4 @@
-import { IsOptional, IsString, Length } from "class-validator";
+import { IsDateString, IsOptional, IsString, Length } from "class-validator";
 
 export class UpdateProjectDto {
   @IsOptional()
@@ -10,4 +10,15 @@ export class UpdateProjectDto {
   @IsString()
   @Length(3, 255)
   description?: string;
+
+  @IsDateString()
+  @IsOptional()
+  startDate?: string;
+
+  @IsDateString()
+  @IsOptional()
+  endDate?: string | null;
+
+  @IsOptional()
+  categoryId?: number;
 }

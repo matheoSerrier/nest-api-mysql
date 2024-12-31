@@ -46,6 +46,15 @@ export class ProjectController {
     return this.projectService.findProjectsByParticipant(req.user.id, page, limit);
   }
 
+  @Get("category/:categoryId")
+  findProjectsByCategory(
+    @Param("categoryId", ParseIntPipe) categoryId: number,
+    @Query("page", new ParseIntPipe({ errorHttpStatusCode: 400 })) page: number = 1,
+    @Query("limit", new ParseIntPipe({ errorHttpStatusCode: 400 })) limit: number = 10,
+  ) {
+    return this.projectService.findProjectsByCategory(categoryId, page, limit);
+  }
+
   @Get(":id")
   getProjectById(@Param("id", ParseIntPipe) id: number) {
     return this.projectService.getProjectById(id);

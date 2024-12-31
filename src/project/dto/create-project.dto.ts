@@ -21,4 +21,7 @@ export class CreateProjectDto {
 
   @IsNotEmpty()
   ownerId: number;
+
+  @IsOptional()
+  categoryId?: number;
 }

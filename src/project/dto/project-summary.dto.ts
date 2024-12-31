@@ -8,4 +8,8 @@ export class ProjectSummaryDto {
     endDate: string | null;
     owner: UserSummaryDto;
     participants: UserSummaryDto[];
+    category?: {
+        id: number;
+        name: string;
+    };
 }

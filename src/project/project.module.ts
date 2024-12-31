@@ -5,9 +5,10 @@ import { ProjectService } from "./project.service";
 import { ProjectController } from "./project.controller";
 import { User } from "../user/entities/user.entity";
 import { Task } from "../task/entities/task.entity";
+import { Category } from "src/category/entities/category.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Project, User, Task])],
+  imports: [TypeOrmModule.forFeature([Project, User, Task, Category])],
   controllers: [ProjectController],
   providers: [ProjectService],
 })
