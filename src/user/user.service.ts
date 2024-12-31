@@ -7,12 +7,18 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import * as bcrypt from "bcrypt";
 import { applyPagination, PaginationResult } from "../utils/pagination.util";
 import { UserSummaryDto } from "./dto/user-summary.dto";
+import { UserFormatService } from "./strategies/user-format.service";
+import { UserIndexStrategy } from "./strategies/user-index.strategy";
+import { UserDetailsStrategy } from "./strategies/user-details.strategy";
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly userFormatService: UserFormatService,
+    private readonly userIndexStrategy: UserIndexStrategy,
+    private readonly userDetailsStrategy: UserDetailsStrategy,
   ) {}
 
   async findAll(page: number, limit: number): Promise<PaginationResult<UserSummaryDto>> {
@@ -31,6 +37,24 @@ export class UserService {
 
     return applyPagination(formattedUsers, total);
   }
+
+  async findOneBySlug(slug: string, format: "index" | "details") {
+    const user = await this.userRepository.findOne({ where: { slug } });
+    if (!user) {
+      throw new NotFoundException(`User with slug ${slug} not found`);
+    }
+  
+    // Choix de la stratégie en fonction du format
+    if (format === "index") {
+      this.userFormatService.setStrategy(this.userIndexStrategy);
+    } else if (format === "details") {
+      this.userFormatService.setStrategy(this.userDetailsStrategy);
+    } else {
+      throw new Error("Invalid format");
+    }
+  
+    return this.userFormatService.transform(user);
+  }  
 
   async findByEmail(email: string): Promise<User | undefined> {
     return this.userRepository.findOne({ where: { email } });

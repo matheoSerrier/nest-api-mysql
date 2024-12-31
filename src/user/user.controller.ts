@@ -24,6 +24,14 @@ export class UserController {
     return this.userService.findAll(parsedPage, parsedLimit);
   }
 
+  @Get(":slug")
+  findOne(
+    @Param("slug") slug: string,
+    @Query("format") format: "index" | "details" = "details",
+  ) {
+    return this.userService.findOneBySlug(slug, format);
+  }
+
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
