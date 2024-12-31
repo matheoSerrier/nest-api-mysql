@@ -21,7 +21,10 @@ export class UserService {
     private readonly userDetailsStrategy: UserDetailsStrategy,
   ) {}
 
-  async findAll(page: number, limit: number): Promise<PaginationResult<UserSummaryDto>> {
+  async findAll(
+    page: number,
+    limit: number,
+  ): Promise<PaginationResult<UserSummaryDto>> {
     const [users, total] = await this.userRepository.findAndCount({
       skip: (page - 1) * limit,
       take: limit,
@@ -43,7 +46,7 @@ export class UserService {
     if (!user) {
       throw new NotFoundException(`User with slug ${slug} not found`);
     }
-  
+
     // Choix de la stratégie en fonction du format
     if (format === "index") {
       this.userFormatService.setStrategy(this.userIndexStrategy);
@@ -52,15 +55,18 @@ export class UserService {
     } else {
       throw new Error("Invalid format");
     }
-  
+
     return this.userFormatService.transform(user);
-  }  
+  }
 
   async findByEmail(email: string): Promise<User | undefined> {
     return this.userRepository.findOne({ where: { email } });
   }
 
-  private async generateUniqueSlug(firstname: string, lastname: string): Promise<string> {
+  private async generateUniqueSlug(
+    firstname: string,
+    lastname: string,
+  ): Promise<string> {
     let slug = `@${firstname.toLowerCase()}${lastname.toLowerCase()}`;
     let suffix = 1;
 
@@ -77,21 +83,27 @@ export class UserService {
     if (existingUser) {
       throw new Error("User with this email already exists");
     }
-  
+
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-  
-    const slug = await this.generateUniqueSlug(createUserDto.firstname, createUserDto.lastname);
-  
+
+    const slug = await this.generateUniqueSlug(
+      createUserDto.firstname,
+      createUserDto.lastname,
+    );
+
     const user = this.userRepository.create({
       ...createUserDto,
       password: hashedPassword,
       slug,
     });
-  
+
     return this.userRepository.save(user); // Retourne l'entité complète
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<UserSummaryDto> {
+  async update(
+    id: number,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserSummaryDto> {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);

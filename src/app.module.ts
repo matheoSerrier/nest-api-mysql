@@ -6,7 +6,7 @@ import { ProjectModule } from "./project/project.module";
 import { TaskModule } from "./task/task.module";
 import { TagModule } from "./tag/tag.module";
 import { AuthModule } from "./auth/auth.module";
-import { AuthMiddleware } from "./auth/auth.middleware"; 
+import { AuthMiddleware } from "./auth/auth.middleware";
 import { CategoryModule } from "./category/category.module";
 
 @Module({
@@ -30,7 +30,7 @@ import { CategoryModule } from "./category/category.module";
     TaskModule,
     TagModule,
     AuthModule,
-    CategoryModule
+    CategoryModule,
   ],
 })
 export class AppModule {

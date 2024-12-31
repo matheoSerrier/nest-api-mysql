@@ -4,4 +4,4 @@ export class UserSummaryDto {
   lastname: string;
   slug: string;
   email: string;
-}  
+}

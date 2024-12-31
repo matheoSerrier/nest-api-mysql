@@ -4,15 +4,13 @@ import { Repository } from "typeorm";
 import { Project } from "./entities/project.entity";
 import { User } from "../user/entities/user.entity";
 import { Task } from "../task/entities/task.entity";
-import { Category } from "src/category/entities/category.entity"
+import { Category } from "src/category/entities/category.entity";
 import { CreateProjectDto } from "./dto/create-project.dto";
 import { UpdateProjectDto } from "./dto/update-project.dto";
 import { ProjectSummaryDto } from "./dto/project-summary.dto";
 
 import { applyPagination, PaginationResult } from "../utils/pagination.util";
-import dayjs from 'dayjs';
-;
-
+import dayjs from "dayjs";
 @Injectable()
 export class ProjectService {
   constructor(
@@ -23,7 +21,7 @@ export class ProjectService {
     @InjectRepository(Task)
     private taskRepository: Repository<Task>,
     @InjectRepository(Category)
-    private categoryRepository: Repository<Category>
+    private categoryRepository: Repository<Category>,
   ) {}
 
   // Récupérer tous les projets
@@ -36,14 +34,18 @@ export class ProjectService {
       skip: (page - 1) * limit,
       take: limit,
     });
-  
+
     // Mapper les données vers les DTOs
     const formattedProjects = projects.map((project) => ({
       id: project.id,
       name: project.name,
       description: project.description,
-      startDate: project.startDate ? dayjs(project.startDate).format("YYYY-MM-DD") : null,
-      endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
+      startDate: project.startDate
+        ? dayjs(project.startDate).format("YYYY-MM-DD")
+        : null,
+      endDate: project.endDate
+        ? dayjs(project.endDate).format("YYYY-MM-DD")
+        : null,
       owner: {
         id: project.owner.id,
         firstname: project.owner.firstname,
@@ -59,13 +61,13 @@ export class ProjectService {
         email: participant.email,
       })),
       category: project.category
-      ? {
-          id: project.category.id,
-          name: project.category.name,
-        }
-      : null,
+        ? {
+            id: project.category.id,
+            name: project.category.name,
+          }
+        : null,
     }));
-  
+
     return applyPagination(formattedProjects, total);
   }
 
@@ -75,18 +77,22 @@ export class ProjectService {
       where: { id },
       relations: ["owner", "participants", "category"],
     });
-  
+
     if (!project) {
       throw new NotFoundException(`Project with ID ${id} not found`);
     }
-  
+
     // Mapper le projet vers le DTO
     return {
       id: project.id,
       name: project.name,
       description: project.description,
-      startDate: project.startDate ? dayjs(project.startDate).format("YYYY-MM-DD") : null,
-      endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
+      startDate: project.startDate
+        ? dayjs(project.startDate).format("YYYY-MM-DD")
+        : null,
+      endDate: project.endDate
+        ? dayjs(project.endDate).format("YYYY-MM-DD")
+        : null,
       owner: {
         id: project.owner.id,
         firstname: project.owner.firstname,
@@ -102,14 +108,13 @@ export class ProjectService {
         email: participant.email,
       })),
       category: project.category
-      ? {
-          id: project.category.id,
-          name: project.category.name,
-        }
-      : null,
+        ? {
+            id: project.category.id,
+            name: project.category.name,
+          }
+        : null,
     };
   }
-
 
   async create(createProjectDto: CreateProjectDto): Promise<ProjectSummaryDto> {
     const owner = await this.userRepository.findOneBy({
@@ -123,12 +128,16 @@ export class ProjectService {
 
     let category: Category | null = null;
     if (createProjectDto.categoryId) {
-      category = await this.categoryRepository.findOneBy({ id: createProjectDto.categoryId });
+      category = await this.categoryRepository.findOneBy({
+        id: createProjectDto.categoryId,
+      });
       if (!category) {
-        throw new NotFoundException(`Category with ID ${createProjectDto.categoryId} not found`);
+        throw new NotFoundException(
+          `Category with ID ${createProjectDto.categoryId} not found`,
+        );
       }
     }
-  
+
     const { startDate, endDate, ...rest } = createProjectDto;
     const project = this.projectRepository.create({
       ...rest,
@@ -137,19 +146,23 @@ export class ProjectService {
       owner,
       category,
     });
-  
+
     const savedProject = await this.projectRepository.save(project);
-  
+
     // Ajouter des tâches par défaut au projet
     await this.addDefaultTasks(savedProject);
-  
+
     // Mapper le projet vers le DTO
     return {
       id: savedProject.id,
       name: savedProject.name,
       description: savedProject.description,
-      startDate: project.startDate ? dayjs(project.startDate).format("YYYY-MM-DD") : null,
-      endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
+      startDate: project.startDate
+        ? dayjs(project.startDate).format("YYYY-MM-DD")
+        : null,
+      endDate: project.endDate
+        ? dayjs(project.endDate).format("YYYY-MM-DD")
+        : null,
       owner: {
         id: owner.id,
         firstname: project.owner.firstname,
@@ -158,12 +171,14 @@ export class ProjectService {
         email: owner.email,
       },
       participants: [],
-      category: category ? {
-        id: category.id,
-        name: category.name,
-      } : undefined
+      category: category
+        ? {
+            id: category.id,
+            name: category.name,
+          }
+        : undefined,
     };
-  }  
+  }
 
   private async addDefaultTasks(project: Project): Promise<void> {
     const defaultTasks = [
@@ -222,11 +237,11 @@ export class ProjectService {
       where: { id },
       relations: ["owner", "participants", "tasks"], // Charger aussi les tâches
     });
-  
+
     if (!project) {
       throw new NotFoundException(`Project with ID ${id} not found`);
     }
-  
+
     // Création du projet dupliqué
     const duplicatedProject = this.projectRepository.create({
       name: `${project.name} (Copy)`,
@@ -234,9 +249,9 @@ export class ProjectService {
       owner: project.owner,
       participants: project.participants,
     });
-  
+
     const savedProject = await this.projectRepository.save(duplicatedProject);
-  
+
     // Copier les tâches du projet original
     const duplicatedTasks = project.tasks.map((task) => {
       return this.taskRepository.create({
@@ -246,17 +261,21 @@ export class ProjectService {
         project: savedProject, // Associer les tâches au projet dupliqué
       });
     });
-  
+
     // Sauvegarder les nouvelles tâches
     await this.taskRepository.save(duplicatedTasks);
-  
+
     // Mapper le projet vers le DTO
     return {
       id: savedProject.id,
       name: savedProject.name,
       description: savedProject.description,
-      startDate: project.startDate ? dayjs(project.startDate).format("YYYY-MM-DD") : null,
-      endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
+      startDate: project.startDate
+        ? dayjs(project.startDate).format("YYYY-MM-DD")
+        : null,
+      endDate: project.endDate
+        ? dayjs(project.endDate).format("YYYY-MM-DD")
+        : null,
       owner: {
         id: savedProject.owner.id,
         firstname: project.owner.firstname,
@@ -272,7 +291,7 @@ export class ProjectService {
         email: participant.email,
       })),
     };
-  }  
+  }
 
   // Ajouter un utilisateur à un projet
   async addUserToProject(
@@ -286,26 +305,30 @@ export class ProjectService {
     if (!project) {
       throw new NotFoundException(`Project with ID ${projectId} not found`);
     }
-  
+
     const user = await this.userRepository.findOneBy({ id: userId });
     if (!user) {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
-  
+
     if (
       !project.participants.find((participant) => participant.id === userId)
     ) {
       project.participants.push(user);
       await this.projectRepository.save(project);
     }
-  
+
     // Mapper le projet vers le DTO
     return {
       id: project.id,
       name: project.name,
       description: project.description,
-      startDate: project.startDate ? dayjs(project.startDate).format("YYYY-MM-DD") : null,
-      endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
+      startDate: project.startDate
+        ? dayjs(project.startDate).format("YYYY-MM-DD")
+        : null,
+      endDate: project.endDate
+        ? dayjs(project.endDate).format("YYYY-MM-DD")
+        : null,
       owner: {
         id: project.owner.id,
         firstname: project.owner.firstname,
@@ -339,8 +362,12 @@ export class ProjectService {
       id: project.id,
       name: project.name,
       description: project.description,
-      startDate: project.startDate ? dayjs(project.startDate).format("YYYY-MM-DD") : null,
-      endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
+      startDate: project.startDate
+        ? dayjs(project.startDate).format("YYYY-MM-DD")
+        : null,
+      endDate: project.endDate
+        ? dayjs(project.endDate).format("YYYY-MM-DD")
+        : null,
       owner: {
         id: project.owner.id,
         firstname: project.owner.firstname,
@@ -356,31 +383,29 @@ export class ProjectService {
         email: participant.email,
       })),
       category: project.category
-      ? {
-          id: project.category.id,
-          name: project.category.name,
-        }
-      : null,
+        ? {
+            id: project.category.id,
+            name: project.category.name,
+          }
+        : null,
     }));
 
     return applyPagination(formattedProjects, total);
   }
-  
-  async findProjectsByParticipant( //si user est owner inclu
+
+  async findProjectsByParticipant(
+    //si user est owner inclu
     userId: number,
     page: number,
     limit: number,
   ): Promise<PaginationResult<ProjectSummaryDto>> {
     const [projects, total] = await this.projectRepository.findAndCount({
-      where: [
-        { owner: { id: userId } },
-        { participants: { id: userId } }, 
-      ],
+      where: [{ owner: { id: userId } }, { participants: { id: userId } }],
       relations: ["owner", "participants", "category"],
       skip: (page - 1) * limit,
       take: limit,
     });
-  
+
     const formattedProjects = projects.map((project) => ({
       id: project.id,
       name: project.name,
@@ -406,16 +431,16 @@ export class ProjectService {
         email: participant.email,
       })),
       category: project.category
-      ? {
-          id: project.category.id,
-          name: project.category.name,
-        }
-      : null,
+        ? {
+            id: project.category.id,
+            name: project.category.name,
+          }
+        : null,
     }));
-  
+
     return applyPagination(formattedProjects, total);
   }
-  
+
   async findProjectsByCategory(
     categoryId: number,
     page: number,
@@ -427,13 +452,17 @@ export class ProjectService {
       skip: (page - 1) * limit,
       take: limit,
     });
-  
+
     const formattedProjects = projects.map((project) => ({
       id: project.id,
       name: project.name,
       description: project.description,
-      startDate: project.startDate ? dayjs(project.startDate).format("YYYY-MM-DD") : null,
-      endDate: project.endDate ? dayjs(project.endDate).format("YYYY-MM-DD") : null,
+      startDate: project.startDate
+        ? dayjs(project.startDate).format("YYYY-MM-DD")
+        : null,
+      endDate: project.endDate
+        ? dayjs(project.endDate).format("YYYY-MM-DD")
+        : null,
       owner: {
         id: project.owner.id,
         firstname: project.owner.firstname,
@@ -453,7 +482,7 @@ export class ProjectService {
         name: project.category.name,
       },
     }));
-  
+
     return applyPagination(formattedProjects, total);
-  }  
+  }
 }

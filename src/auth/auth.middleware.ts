@@ -1,4 +1,8 @@
-import { Injectable, NestMiddleware, UnauthorizedException } from "@nestjs/common";
+import {
+  Injectable,
+  NestMiddleware,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Request, Response, NextFunction } from "express";
 
@@ -13,7 +17,8 @@ export class AuthMiddleware implements NestMiddleware {
     ];
 
     const isExcluded = excludedRoutes.some(
-      (route) => req.originalUrl.startsWith(route.path) && req.method === route.method,
+      (route) =>
+        req.originalUrl.startsWith(route.path) && req.method === route.method,
     );
 
     if (isExcluded) {
@@ -27,17 +32,17 @@ export class AuthMiddleware implements NestMiddleware {
 
     const token = authHeader.split(" ")[1];
     try {
-        const payload = await this.jwtService.verifyAsync(token, {
-          secret: process.env.JWT_SECRET || "default_secret",
-        });
-        req.user = {
-          id: payload.sub,
-          email: payload.email,
-        };      
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_SECRET || "default_secret",
+      });
+      req.user = {
+        id: payload.sub,
+        email: payload.email,
+      };
 
-        next();
-      } catch (error) {
-        throw new UnauthorizedException("Invalid or expired token");
-      }
+      next();
+    } catch (error) {
+      throw new UnauthorizedException("Invalid or expired token");
+    }
   }
 }

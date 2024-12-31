@@ -54,7 +54,7 @@ export class TaskService {
         id: user.id,
         firstname: user.firstname,
         lastname: user.lastname,
-        slug: user.slug
+        slug: user.slug,
       })),
     }));
 

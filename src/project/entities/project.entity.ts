@@ -50,6 +50,8 @@ export class Project {
   @OneToMany(() => Task, (task) => task.project, { cascade: true })
   tasks: Task[];
 
-  @ManyToOne(() => Category, (category) => category.projects, { nullable: true })
+  @ManyToOne(() => Category, (category) => category.projects, {
+    nullable: true,
+  })
   category: Category | null;
 }
