@@ -39,6 +39,7 @@ export class ProjectService {
     const formattedProjects = projects.map((project) => ({
       id: project.id,
       name: project.name,
+      slug: project.slug,
       description: project.description,
       startDate: project.startDate
         ? dayjs(project.startDate).format("YYYY-MM-DD")
@@ -86,6 +87,7 @@ export class ProjectService {
     return {
       id: project.id,
       name: project.name,
+      slug: project.slug,
       description: project.description,
       startDate: project.startDate
         ? dayjs(project.startDate).format("YYYY-MM-DD")
@@ -116,6 +118,62 @@ export class ProjectService {
     };
   }
 
+  async getProjectBySlug(slug: string): Promise<ProjectSummaryDto> {
+    const project = await this.projectRepository.findOne({
+      where: { slug },
+      relations: ["owner", "participants", "category"],
+    });
+  
+    if (!project) {
+      throw new NotFoundException(`Project with slug "${slug}" not found`);
+    }
+  
+    return {
+      id: project.id,
+      name: project.name,
+      slug: project.slug,
+      description: project.description,
+      startDate: project.startDate
+        ? dayjs(project.startDate).format("YYYY-MM-DD")
+        : null,
+      endDate: project.endDate
+        ? dayjs(project.endDate).format("YYYY-MM-DD")
+        : null,
+      owner: {
+        id: project.owner.id,
+        firstname: project.owner.firstname,
+        lastname: project.owner.lastname,
+        slug: project.owner.slug,
+        email: project.owner.email,
+      },
+      participants: project.participants.map((participant) => ({
+        id: participant.id,
+        firstname: participant.firstname,
+        lastname: participant.lastname,
+        slug: participant.slug,
+        email: participant.email,
+      })),
+      category: project.category
+        ? {
+            id: project.category.id,
+            name: project.category.name,
+          }
+        : null,
+    };
+  }  
+
+  private async generateUniqueSlug(name: string): Promise<string> {
+    let slug = name.toLowerCase().replace(/\s+/g, '-'); // Convertir en minuscule et remplacer les espaces par des tirets
+    let suffix = 1;
+  
+    while (await this.projectRepository.findOne({ where: { slug } })) {
+      slug = `${slug}-${suffix}`;
+      suffix++;
+    }
+  
+    return slug;
+  }  
+
   async create(createProjectDto: CreateProjectDto): Promise<ProjectSummaryDto> {
     const owner = await this.userRepository.findOneBy({
       id: createProjectDto.ownerId,
@@ -139,8 +197,12 @@ export class ProjectService {
     }
 
     const { startDate, endDate, ...rest } = createProjectDto;
+
+    const slug = await this.generateUniqueSlug(createProjectDto.name);
+
     const project = this.projectRepository.create({
       ...rest,
+      slug,
       startDate: startDate ? new Date(startDate) : new Date(),
       endDate: endDate ? new Date(endDate) : null,
       owner,
@@ -156,6 +218,7 @@ export class ProjectService {
     return {
       id: savedProject.id,
       name: savedProject.name,
+      slug: savedProject.slug,
       description: savedProject.description,
       startDate: project.startDate
         ? dayjs(project.startDate).format("YYYY-MM-DD")
@@ -223,15 +286,13 @@ export class ProjectService {
     return this.projectRepository.save(project);
   }
 
-  // Supprimer un projet
-  async delete(id: number): Promise<void> {
-    const result = await this.projectRepository.delete(id);
+  async delete(slug: string): Promise<void> {
+    const result = await this.projectRepository.delete({ slug });
     if (result.affected === 0) {
-      throw new NotFoundException(`Project with ID ${id} not found`);
+      throw new NotFoundException(`Project with slug "${slug}" not found`);
     }
-  }
+  }  
 
-  // Dupliquer un projet
   async createFrom(id: number): Promise<ProjectSummaryDto> {
     const project = await this.projectRepository.findOne({
       where: { id },
@@ -269,6 +330,7 @@ export class ProjectService {
     return {
       id: savedProject.id,
       name: savedProject.name,
+      slug: savedProject.slug,
       description: savedProject.description,
       startDate: project.startDate
         ? dayjs(project.startDate).format("YYYY-MM-DD")
@@ -295,33 +357,31 @@ export class ProjectService {
 
   // Ajouter un utilisateur à un projet
   async addUserToProject(
-    projectId: number,
+    projectSlug: string,
     userId: number,
   ): Promise<ProjectSummaryDto> {
     const project = await this.projectRepository.findOne({
-      where: { id: projectId },
+      where: { slug: projectSlug },
       relations: ["participants", "owner"],
     });
     if (!project) {
-      throw new NotFoundException(`Project with ID ${projectId} not found`);
+      throw new NotFoundException(`Project with slug "${projectSlug}" not found`);
     }
-
+  
     const user = await this.userRepository.findOneBy({ id: userId });
     if (!user) {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
-
-    if (
-      !project.participants.find((participant) => participant.id === userId)
-    ) {
+  
+    if (!project.participants.find((participant) => participant.id === userId)) {
       project.participants.push(user);
       await this.projectRepository.save(project);
     }
-
-    // Mapper le projet vers le DTO
+  
     return {
       id: project.id,
       name: project.name,
+      slug: project.slug,
       description: project.description,
       startDate: project.startDate
         ? dayjs(project.startDate).format("YYYY-MM-DD")
@@ -344,7 +404,7 @@ export class ProjectService {
         email: participant.email,
       })),
     };
-  }
+  }  
 
   async findProjectsByOwner(
     ownerId: number,
@@ -361,6 +421,7 @@ export class ProjectService {
     const formattedProjects = projects.map((project) => ({
       id: project.id,
       name: project.name,
+      slug: project.slug,
       description: project.description,
       startDate: project.startDate
         ? dayjs(project.startDate).format("YYYY-MM-DD")
@@ -409,6 +470,7 @@ export class ProjectService {
     const formattedProjects = projects.map((project) => ({
       id: project.id,
       name: project.name,
+      slug: project.slug,
       description: project.description,
       startDate: project.startDate
         ? dayjs(project.startDate).format("YYYY-MM-DD")
@@ -456,6 +518,7 @@ export class ProjectService {
     const formattedProjects = projects.map((project) => ({
       id: project.id,
       name: project.name,
+      slug: project.slug,
       description: project.description,
       startDate: project.startDate
         ? dayjs(project.startDate).format("YYYY-MM-DD")

@@ -66,10 +66,10 @@ export class ProjectController {
   ) {
     return this.projectService.findProjectsByCategory(categoryId, page, limit);
   }
-
-  @Get(":id")
-  getProjectById(@Param("id", ParseIntPipe) id: number) {
-    return this.projectService.getProjectById(id);
+  
+  @Get(":slug")
+  getProjectBySlug(@Param("slug") slug: string) {
+    return this.projectService.getProjectBySlug(slug);
   }
 
   @Post()
@@ -85,9 +85,9 @@ export class ProjectController {
     return this.projectService.update(id, updateProjectDto);
   }
 
-  @Delete(":id")
-  delete(@Param("id", ParseIntPipe) id: number) {
-    return this.projectService.delete(id);
+  @Delete(":slug")
+  delete(@Param("slug") slug: string) {
+    return this.projectService.delete(slug);
   }
 
   @Post(":id/duplicate")
@@ -95,11 +95,11 @@ export class ProjectController {
     return this.projectService.createFrom(id);
   }
 
-  @Post(":id/add-user")
+  @Post(":slug/add-user")
   addUserToProject(
-    @Param("id", ParseIntPipe) id: number,
+    @Param("slug") slug: string,
     @Body() addUserToProjectDto: AddUserToProjectDto,
   ) {
-    return this.projectService.addUserToProject(id, addUserToProjectDto.userId);
+    return this.projectService.addUserToProject(slug, addUserToProjectDto.userId);
   }
 }

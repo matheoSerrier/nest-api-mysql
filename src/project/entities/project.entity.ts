@@ -18,8 +18,11 @@ export class Project {
   @PrimaryGeneratedColumn({ type: "int", name: "id" })
   id: number;
 
-  @Column({ type: "varchar", length: 100, unique: true })
+  @Column({ type: "varchar", length: 100 })
   name: string;
+
+  @Column({ type: "varchar", length: 100, unique: true })
+  slug: string;
 
   @Column({ type: "varchar", length: 255 })
   description: string;
@@ -52,6 +55,7 @@ export class Project {
 
   @ManyToOne(() => Category, (category) => category.projects, {
     nullable: true,
+    onDelete: "SET NULL",
   })
   category: Category | null;
 }
