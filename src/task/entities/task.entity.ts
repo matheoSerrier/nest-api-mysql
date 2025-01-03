@@ -21,6 +21,9 @@ export class Task {
   @Column({ type: "varchar", length: 100 })
   title: string;
 
+  @Column({ type: "varchar", length: 100, unique: true })
+  slug: string;
+
   @Column({ type: "text", nullable: true })
   description: string;
 
@@ -40,14 +43,12 @@ export class Task {
   @DeleteDateColumn({ type: "timestamp", nullable: true })
   deletedAt: Date;
 
-  // Relation obligatoire avec un projet
   @ManyToOne(() => Project, (project) => project.tasks, {
     onDelete: "CASCADE",
     nullable: false,
   })
   project: Project;
 
-  // Relation optionnelle avec des utilisateurs
   @ManyToMany(() => User, (user) => user.tasks)
   @JoinTable()
   assignedUsers: User[];

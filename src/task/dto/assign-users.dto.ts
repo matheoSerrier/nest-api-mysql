@@ -1,3 +1,3 @@
 export class AssignUsersDto {
-  userIds: number[];
+  userSlugs: string[];
 }

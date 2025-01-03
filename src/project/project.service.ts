@@ -15,7 +15,7 @@ import dayjs from "dayjs";
 export class ProjectService {
   constructor(
     @InjectRepository(Project)
-    private projectRepository: Repository<Project>,
+    private projectRepository: Repository<Project>, 
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(Task)
@@ -211,9 +211,6 @@ export class ProjectService {
 
     const savedProject = await this.projectRepository.save(project);
 
-    // Ajouter des tâches par défaut au projet
-    await this.addDefaultTasks(savedProject);
-
     // Mapper le projet vers le DTO
     return {
       id: savedProject.id,
@@ -243,36 +240,7 @@ export class ProjectService {
     };
   }
 
-  private async addDefaultTasks(project: Project): Promise<void> {
-    const defaultTasks = [
-      {
-        title: "Planification initiale",
-        description: "Définir les objectifs et les délais.",
-      },
-      {
-        title: "Recherche et analyse",
-        description: "Analyser les besoins et proposer des solutions.",
-      },
-      {
-        title: "Développement initial",
-        description: "Commencer le développement de base.",
-      },
-      {
-        title: "Test et validation",
-        description: "Effectuer les tests pour garantir la qualité.",
-      },
-      { title: "Livraison", description: "Livrer le projet au client." },
-    ];
-
-    const tasks = defaultTasks.map((taskData) =>
-      this.taskRepository.create({ ...taskData, project }),
-    );
-
-    await this.taskRepository.save(tasks);
-  }
-
   // Mettre à jour un projet
-  //TODO à vérifier
   async update(
     id: number,
     updateProjectDto: UpdateProjectDto,

@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   Param,
-  ParseIntPipe,
   Post,
   Delete,
   Put,
@@ -16,19 +15,17 @@ import { TaskService } from "./task.service";
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
-  // Récupérer toutes les tâches
   @Get()
   async findAll(
     @Query("page") page: number = 1,
     @Query("limit") limit: number = 10,
     @Query("title") title?: string,
     @Query("isCompleted") isCompleted?: string,
-    @Query("orderBy") orderBy?: "ASC" | "DESC",
+    @Query("orderBy") orderBy?: "ASC" | "DESC"
   ) {
     const parsedPage = parseInt(page.toString(), 10) || 1;
     const parsedLimit = parseInt(limit.toString(), 10) || 10;
 
-    // Convertit `isCompleted` en boolean s'il est fourni
     const filters = {
       title,
       isCompleted:
@@ -38,36 +35,44 @@ export class TaskController {
     return this.taskService.findAll(parsedPage, parsedLimit, filters, orderBy);
   }
 
-  // Récupérer une tâche par son ID
-  @Get(":id")
-  findById(@Param("id", ParseIntPipe) id: number) {
-    return this.taskService.findById(id);
+  @Get(":slug")
+  findBySlug(@Param("slug") slug: string) {
+    return this.taskService.findBySlug(slug);
   }
 
-  // Assigner des utilisateurs à une tâche
-  @Post(":id/assign-users")
+  @Post(":slug/assign-users")
   assignUsersToTask(
-    @Param("id", ParseIntPipe) id: number,
-    @Body() assignUsersDto: AssignUsersDto,
+    @Param("slug") slug: string,
+    @Body() assignUsersDto: AssignUsersDto
   ) {
-    return this.taskService.assignUsersToTask(id, assignUsersDto.userIds);
+    return this.taskService.assignUsersToTask(slug, assignUsersDto.userSlugs);
   }
 
-  @Delete(":id")
-  softDelete(@Param("id", ParseIntPipe) id: number) {
-    return this.taskService.softDelete(id);
+  @Delete(":slug")
+  softDelete(@Param("slug") slug: string) {
+    return this.taskService.softDelete(slug);
   }
 
-  @Put(":id/restore")
-  restore(@Param("id", ParseIntPipe) id: number) {
-    return this.taskService.restore(id);
+  @Put(":slug/restore")
+  restore(@Param("slug") slug: string) {
+    return this.taskService.restore(slug);
   }
 
-  @Post(":id/assign-tags")
+  @Post(":slug/assign-tags")
   assignTagsToTask(
-    @Param("id", ParseIntPipe) id: number,
-    @Body("tags") tagNames: string[],
+    @Param("slug") slug: string,
+    @Body("tags") tagNames: string[]
   ) {
-    return this.taskService.assignTagsToTask(id, tagNames);
+    return this.taskService.assignTagsToTask(slug, tagNames);
+  }
+
+  @Post()
+  async createTask(
+    @Body("projectSlug") projectSlug: string,
+    @Body("title") title: string | null,
+    @Body("description") description: string | null,
+    @Body("tags") tagNames?: string[]
+  ) {
+    return this.taskService.createTask(projectSlug, title, description, tagNames);
   }
 }
