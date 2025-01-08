@@ -1,4 +1,4 @@
-@startuml
+@startuml trellow
 entity "Category" {
   * id : int <<PK>>
   --
