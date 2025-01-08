@@ -1,0 +1,63 @@
+@startuml
+entity "Category" {
+  * id : int <<PK>>
+  --
+  name : varchar(100) <<unique>>
+  createdAt : timestamp
+  updatedAt : timestamp
+}
+
+entity "Project" {
+  * id : int <<PK>>
+  --
+  name : varchar(100)
+  slug : varchar(100) <<unique>>
+  description : varchar(255)
+  startDate : date
+  endDate : date
+  createdAt : timestamp
+  updatedAt : timestamp
+  <<FK>> categoryId : int
+  <<FK>> ownerId : int
+}
+
+entity "Tag" {
+  * id : int <<PK>>
+  --
+  name : varchar(100) <<unique>>
+}
+
+entity "Task" {
+  * id : int <<PK>>
+  --
+  title : varchar(100)
+  slug : varchar(100) <<unique>>
+  description : text
+  isCompleted : boolean
+  createdAt : timestamp
+  updatedAt : timestamp
+  deletedAt : timestamp
+  <<FK>> projectId : int
+}
+
+entity "User" {
+  * id : int <<PK>>
+  --
+  firstname : varchar(50)
+  lastname : varchar(50)
+  slug : varchar(255) <<unique>>
+  email : varchar(255) <<unique>>
+  password : varchar(255)
+  createdAt : timestamp
+  updatedAt : timestamp
+}
+
+Category ||--o{ Project : "1-to-Many"
+Project }o--|| User : "Many-to-1 (owner)"
+Project }o--|| Category : "Many-to-1"
+Project ||--o{ Task : "1-to-Many"
+Task }o--|| Project : "Many-to-1"
+Task }o--o{ Tag : "Many-to-Many"
+Task }o--o{ User : "Many-to-Many"
+Project }o--o{ User : "Many-to-Many (participants)"
+@enduml
